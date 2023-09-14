@@ -1,0 +1,42 @@
+version: "3.3"
+services:
+  spark-master:
+    build:
+      context: ./docker/spark
+      dockerfile: Dockerfile
+    ports:
+      - "9090:8080"
+      - "7077:7077"
+    volumes:
+      - ./docker/spark/apps:/opt/spark-apps
+      - ./docker/spark/data:/opt/spark-data
+    environment:
+      - SPARK_LOCAL_IP=spark-master
+      - SPARK_WORKLOAD=master
+  spark-worker:
+    build:
+      context: ./docker/spark
+      dockerfile: Dockerfile
+    ports:
+      - "9091:8080"
+      - "7007:7000"
+    depends_on:
+      - spark-master
+    environment:
+      - SPARK_MASTER=spark://spark-master:7077
+      - SPARK_WORKER_CORES=1
+      - SPARK_WORKER_MEMORY=1G
+      - SPARK_DRIVER_MEMORY=1G
+      - SPARK_EXECUTOR_MEMORY=1G
+      - SPARK_WORKLOAD=worker
+      - SPARK_LOCAL_IP=spark-worker
+    volumes:
+      - ./docker/spark/apps:/opt/spark-apps
+      - ./docker/spark/data:/opt/spark-data
+  python-app:
+    build:
+      context: ./docker/loader
+      dockerfile: Dockerfile
+    depends_on:
+      - spark-master
+      - spark-worker
