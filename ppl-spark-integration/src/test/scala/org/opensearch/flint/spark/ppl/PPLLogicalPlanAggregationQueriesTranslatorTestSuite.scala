@@ -298,5 +298,40 @@ class PPLLogicalPlanAggregationQueriesTranslatorTestSuite
     // Compare the two plans
     assert(compareByString(expectedPlan) === compareByString(logPlan))
   }
+  test("create ppl query count status amount by day window and group by status test") {
+    val context = new CatalystPlanContext
+    val logPlan = planTrnasformer.visit(
+      plan(
+        pplParser,
+        "source = table | stats sum(status) by span(@timestamp, 1d) as status_count_by_day, status | head 100",
+        false),
+      context)
+    // Define the expected logical plan
+    val star = Seq(UnresolvedStar(None))
+    val status = Alias(UnresolvedAttribute("status"), "status")()
+    val statusAmount = UnresolvedAttribute("status")
+    val table = UnresolvedRelation(Seq("table"))
+
+    val windowExpression = Alias(
+      TimeWindow(
+        UnresolvedAttribute("`@timestamp`"),
+        TimeWindow.parseExpression(Literal("1 day")),
+        TimeWindow.parseExpression(Literal("1 day")),
+        0),
+      "status_count_by_day")()
+
+    val aggregateExpressions =
+      Alias(
+        UnresolvedFunction(Seq("SUM"), Seq(statusAmount), isDistinct = false),
+        "sum(status)")()
+    val aggregatePlan = Aggregate(
+      Seq(status, windowExpression),
+      Seq(aggregateExpressions, status, windowExpression),
+      table)
+    val planWithLimit = GlobalLimit(Literal(100), LocalLimit(Literal(100), aggregatePlan))
+    val expectedPlan = Project(star, planWithLimit)
+    // Compare the two plans
+    assert(compareByString(expectedPlan) === compareByString(logPlan))
+  }
 
 }
