@@ -55,10 +55,31 @@ services:
       - SPARK_LOCAL_IP=spark-worker-1
       - SPARK_DRIVER_EXTRA_CLASSPATH=/opt/spark-jars/*
       - SPARK_EXECUTOR_EXTRA_CLASSPATH=/opt/spark-jars/*
+      - SPARK_HIVE_METASTORE_VERSION=2.3.7
+      - SPARK_HIVE_METASTORE_JARS=maven
+      - SPARK_HIVE_METASTORE_URI=thrift://hive-metastore:9083
     volumes:
       - ./apps:/opt/spark-apps
       - ./data:/opt/spark-data
       - ./logs:/opt/spark-logs
+  hive-metastore:
+    image: bde2020/hive:2.3.2-postgresql-metastore
+    container_name: hive-metastore
+    env_file:
+      - ./docker/hive/hive.env
+      - ./docker/hive/conf/metastore-site.xml:/opt/apache-hive-metastore-3.0.0-bin/conf/metastore-site.xml
+
+    environment:
+      HIVE_CORE_CONF_javax_jdo_option_ConnectionURL: jdbc:mysql://mysql/metastore?createDatabaseIfNotExist=true
+      HIVE_CORE_CONF_javax_jdo_option_ConnectionDriverName: com.mysql.jdbc.Driver
+      HIVE_CORE_CONF_javax_jdo_option_ConnectionUserName: hive
+      HIVE_CORE_CONF_javax_jdo_option_ConnectionPassword: hivepassword
+    ports:
+      - "9083:9083"
+  hive-metastore-postgresql:
+    image: bde2020/hive-metastore-postgresql:2.3.0
+    container_name: hive-metastore-postgresql
+
   livy-server:
     container_name: livy_server
     build: ./docker/livy/
