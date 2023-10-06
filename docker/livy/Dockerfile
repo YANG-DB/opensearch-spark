@@ -1,4 +1,4 @@
-FROM docker.io/bitnami/spark:2
+FROM docker.io/bitnami/spark:3
 
 USER root
 ENV LIVY_HOME /opt/bitnami/livy
