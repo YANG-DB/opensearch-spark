@@ -539,7 +539,7 @@ class FlintSparkOTELIndexSqlITSuite extends FlintSparkSuite {
          |                {
          |                  "key": "db.statement",
          |                  "value": {
-         |                    "stringValue": "SELECT f0.\"id\", f0.\"description\", f0.\"enabled\", f0.\"name\", f0.\"inserted_at\", f0.\"updated_at\" FROM \"featureflags\" AS f0"
+         |                    "stringValue": " AS f0"
          |                  }
          |                },
          |                {
