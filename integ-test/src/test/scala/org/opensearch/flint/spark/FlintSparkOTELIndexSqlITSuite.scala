@@ -577,6 +577,13 @@ class FlintSparkOTELIndexSqlITSuite extends FlintSparkSuite {
          | SELECT * from default.otel_traces
          |""".stripMargin)
     result.show()
+
+    val stats = sql(
+      s"""
+         |ANALYZE TABLE default.otel_traces COMPUTE STATISTICS;
+         |
+         |""".stripMargin)
+    stats.show()
   }
 
   test("create covering index with auto refresh") {
