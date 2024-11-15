@@ -262,10 +262,6 @@ flattenCommand
     : FLATTEN fieldExpression
     ;
 
-expandCommand
-    : EXPAND fieldExpression
-    ;
-
 trendlineCommand
    : TRENDLINE (SORT sortField)? trendlineClause (trendlineClause)*
    ;

@@ -42,7 +42,6 @@ FILLNULL:                           'FILLNULL';
 EXPAND:                             'EXPAND';
 FLATTEN:                            'FLATTEN';
 TRENDLINE:                          'TRENDLINE';
-EXPAND:                             'EXPAND';
 
 //Native JOIN KEYWORDS
 JOIN:                               'JOIN';
