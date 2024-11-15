@@ -185,6 +185,7 @@ public enum BuiltinFunctionName {
   NESTED(FunctionName.of("nested")),
   PERCENTILE(FunctionName.of("percentile")),
   PERCENTILE_APPROX(FunctionName.of("percentile_approx")),
+  APPROX_COUNT_DISTINCT(FunctionName.of("approx_count_distinct")),
 
   /** Text Functions. */
   ASCII(FunctionName.of("ascii")),
@@ -214,6 +215,7 @@ public enum BuiltinFunctionName {
   JSON_OBJECT(FunctionName.of("json_object")),
   JSON_ARRAY(FunctionName.of("json_array")),
   JSON_ARRAY_LENGTH(FunctionName.of("json_array_length")),
+  TO_JSON_STRING(FunctionName.of("to_json_string")),
   JSON_EXTRACT(FunctionName.of("json_extract")),
   JSON_KEYS(FunctionName.of("json_keys")),
   JSON_VALID(FunctionName.of("json_valid")),
@@ -229,6 +231,7 @@ public enum BuiltinFunctionName {
 
   /** COLLECTION Functions **/
   ARRAY(FunctionName.of("array")),
+  ARRAY_LENGTH(FunctionName.of("array_length")),
 
   /** LAMBDA Functions **/
   ARRAY_FORALL(FunctionName.of("forall")),
@@ -290,7 +293,6 @@ public enum BuiltinFunctionName {
   MULTIMATCHQUERY(FunctionName.of("multimatchquery")),
   WILDCARDQUERY(FunctionName.of("wildcardquery")),
   WILDCARD_QUERY(FunctionName.of("wildcard_query")),
-
   COALESCE(FunctionName.of("coalesce"));
 
   private FunctionName name;
@@ -331,6 +333,7 @@ public enum BuiltinFunctionName {
           .put("take", BuiltinFunctionName.TAKE)
           .put("percentile", BuiltinFunctionName.PERCENTILE)
           .put("percentile_approx", BuiltinFunctionName.PERCENTILE_APPROX)
+          .put("approx_count_distinct", BuiltinFunctionName.APPROX_COUNT_DISTINCT)
           .build();
 
   public static Optional<BuiltinFunctionName> of(String str) {

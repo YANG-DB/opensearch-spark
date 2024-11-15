@@ -76,7 +76,9 @@ commandName
    | SORT
    | HEAD
    | TOP
+   | TOP_APPROX
    | RARE
+   | RARE_APPROX
    | EVAL
    | GROK
    | PARSE
@@ -180,11 +182,11 @@ headCommand
    ;
 
 topCommand
-   : TOP (number = integerLiteral)? fieldList (byClause)?
+   : (TOP | TOP_APPROX) (number = integerLiteral)? fieldList (byClause)?
    ;
 
 rareCommand
-   : RARE fieldList (byClause)?
+   : (RARE | RARE_APPROX) (number = integerLiteral)? fieldList (byClause)?
    ;
 
 grokCommand
@@ -252,6 +254,10 @@ fillnullCommand
    : expression
    ;
 
+expandCommand
+    : EXPAND fieldExpression (AS alias = qualifiedName)?
+    ;
+    
 flattenCommand
     : FLATTEN fieldExpression
     ;
@@ -265,7 +271,7 @@ trendlineCommand
    ;
 
 trendlineClause
-   : trendlineType LT_PRTHS numberOfDataPoints = integerLiteral COMMA field = fieldExpression RT_PRTHS (AS alias = qualifiedName)?
+   : trendlineType LT_PRTHS numberOfDataPoints = INTEGER_LITERAL COMMA field = fieldExpression RT_PRTHS (AS alias = qualifiedName)?
    ;
 
 trendlineType
@@ -346,7 +352,7 @@ joinType
    ;
 
 sideAlias
-   : LEFT EQUAL leftAlias = ident COMMA? RIGHT EQUAL rightAlias = ident
+   : (LEFT EQUAL leftAlias = ident)? COMMA? (RIGHT EQUAL rightAlias = ident)?
    ;
 
 joinCriteria
@@ -401,7 +407,7 @@ statsAggTerm
 statsFunction
    : statsFunctionName LT_PRTHS valueExpression RT_PRTHS                                                                            # statsFunctionCall
    | COUNT LT_PRTHS RT_PRTHS                                                                                                        # countAllFunctionCall
-   | (DISTINCT_COUNT | DC) LT_PRTHS valueExpression RT_PRTHS                                                                        # distinctCountFunctionCall
+   | (DISTINCT_COUNT | DC | DISTINCT_COUNT_APPROX) LT_PRTHS valueExpression RT_PRTHS                                                                        # distinctCountFunctionCall
    | percentileFunctionName = (PERCENTILE | PERCENTILE_APPROX) LT_PRTHS valueExpression COMMA percent = integerLiteral RT_PRTHS     # percentileFunctionCall
    ;
 
@@ -423,6 +429,7 @@ expression
 
 logicalExpression
    : NOT logicalExpression                                      # logicalNot
+   | LT_PRTHS logicalExpression RT_PRTHS                        # parentheticLogicalExpr
    | comparisonExpression                                       # comparsion
    | left = logicalExpression (AND)? right = logicalExpression  # logicalAnd
    | left = logicalExpression OR right = logicalExpression      # logicalOr
@@ -874,6 +881,7 @@ jsonFunctionName
    | JSON_OBJECT
    | JSON_ARRAY
    | JSON_ARRAY_LENGTH
+   | TO_JSON_STRING
    | JSON_EXTRACT
    | JSON_KEYS
    | JSON_VALID
@@ -890,6 +898,7 @@ jsonFunctionName
 
 collectionFunctionName
    : ARRAY
+   | ARRAY_LENGTH
    ;
 
 lambdaFunctionName
@@ -1132,6 +1141,7 @@ keywordsCanBeId
    // AGGREGATIONS
    | statsFunctionName
    | DISTINCT_COUNT
+   | DISTINCT_COUNT_APPROX
    | PERCENTILE
    | PERCENTILE_APPROX
    | ESTDC
