@@ -3,6 +3,7 @@ services:
     build:
       context: ./spark
     container_name: spark-demo
+    user: root
     networks:
       network:
     depends_on:

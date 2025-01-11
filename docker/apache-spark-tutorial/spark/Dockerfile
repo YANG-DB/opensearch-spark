@@ -80,4 +80,7 @@ ENV PATH="/opt/spark/sbin:/opt/spark/bin:${PATH}"
 RUN chmod u+x /opt/spark/sbin/* && \
     chmod u+x /opt/spark/bin/*
 
+COPY spark-entrypoint.sh .
+ENTRYPOINT ["./spark-entrypoint.sh"]
+
 CMD ["notebook"]
