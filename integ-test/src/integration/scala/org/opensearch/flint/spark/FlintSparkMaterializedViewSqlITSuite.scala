@@ -82,6 +82,14 @@ class FlintSparkMaterializedViewSqlITSuite extends FlintSparkSuite {
            *   Row(timestamp("2023-10-01 02:00:00"), 1)
            */
         ))
+
+      sql(s"""
+             | INSERT INTO $testTable VALUES
+             | (TIMESTAMP '2023-10-01 04:00:00', 'F', 25, 'Vancouver')
+             | """.stripMargin)
+      failAfter(streamingTimeout) {
+        job.get.processAllAvailable()
+      }
     }
   }
 
@@ -152,6 +160,50 @@ class FlintSparkMaterializedViewSqlITSuite extends FlintSparkSuite {
       options.extraSourceOptions(testTable) shouldBe Map("maxFilesPerTrigger" -> "1")
       options.extraSinkOptions() shouldBe Map.empty
     }
+  }
+
+  test("create materialized view with auto refresh and ID expression") {
+    withTempDir { checkpointDir =>
+      sql(s"""
+             | CREATE MATERIALIZED VIEW $testMvName
+             | AS $testQuery
+             | WITH (
+             |   auto_refresh = true,
+             |   checkpoint_location = '${checkpointDir.getAbsolutePath}',
+             |   watermark_delay = '1 Second',
+             |   id_expression = "sha1(concat_ws('\0',startTime))"
+             | )
+             |""".stripMargin)
+
+      // Wait for streaming job complete current micro batch
+      val job = spark.streams.active.find(_.name == testFlintIndex)
+      job shouldBe defined
+      failAfter(streamingTimeout) {
+        job.get.processAllAvailable()
+      }
+
+      flint.queryIndex(testFlintIndex).count() shouldBe 3
+    }
+  }
+
+  test("create materialized view with full refresh and ID expression") {
+    sql(s"""
+           | CREATE MATERIALIZED VIEW $testMvName
+           | AS $testQuery
+           | WITH (
+           |   id_expression = 'count'
+           | )
+           |""".stripMargin)
+
+    sql(s"REFRESH MATERIALIZED VIEW $testMvName")
+
+    // 2 rows missing due to ID conflict intentionally
+    val indexData = flint.queryIndex(testFlintIndex)
+    indexData.count() shouldBe 2
+
+    // Rerun should not generate duplicate data
+    sql(s"REFRESH MATERIALIZED VIEW $testMvName")
+    indexData.count() shouldBe 2
   }
 
   test("create materialized view with index settings") {

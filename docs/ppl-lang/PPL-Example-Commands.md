@@ -1,5 +1,10 @@
 ## Example PPL Queries
 
+#### **AppendCol**
+[See additional command details](ppl-appendcol-command.md)
+- `source=employees | stats avg(age) as avg_age1 by dept | fields dept, avg_age1 | APPENDCOL  [ stats avg(age) as avg_age2 by dept | fields avg_age2 ];` (To display multiple table statistics side by side)
+- `source=employees | FIELDS name, dept, age | APPENDCOL OVERRIDE=true [ stats avg(age) as age ];` (When the override option is enabled, fields from the sub-query take precedence over fields in the main query in cases of field name conflicts)
+
 #### **Comment**
 [See additional command details](ppl-comment.md)
 - `source=accounts | top gender // finds most common gender of all the accounts` (line comment)
@@ -274,7 +279,7 @@ source = table |  where ispresent(a) |
 - `source=accounts | parse email '.+@(?<host>.+)' | stats count() by host`
 - `source=accounts | parse email '.+@(?<host>.+)' | eval eval_result=1 | fields host, eval_result`
 - `source=accounts | parse email '.+@(?<host>.+)' | where age > 45 | sort - age | fields age, email, host`
-- `source=accounts | parse address '(?<streetNumber>\d+) (?<street>.+)' | where streetNumber > 500 | sort num(streetNumber) | fields streetNumber, street`
+- `source=accounts | parse address '(?<streetNumber>\d+) (?<street>.+)' | eval streetNumberInt = cast(streetNumber as integer) | where streetNumberInt > 500 | sort streetNumberInt | fields streetNumber, street`
 - Limitation: [see limitations](ppl-parse-command.md#limitations)
 
 #### **Grok**
@@ -494,4 +499,23 @@ _- **Limitation: another command usage of (relation) subquery is in `appendcols`
 -  `source = table | eval cdate = CAST('2012-08-07' as date), ctime = cast('2012-08-07T08:07:06' as timestamp) | fields cdate, ctime`
 -  `source = table | eval chained_cast = cast(cast("true" as boolean) as integer) | fields chained_cast`
 
+### **Relative Time Functions**
+
+#### **relative_timestamp**
+[See additional function details](functions/ppl-datetime#relative_timestamp)
+- `source = table | eval one_hour_ago = relative_timestamp("-1h") | where timestamp < one_hour_ago`
+- `source = table | eval start_of_today = relative_timestamp("@d") | where timestamp > start_of_today`
+- `source = table | eval last_saturday = relative_timestamp("-1d@w6") | where timestamp >= last_saturday`
+
+#### **earliest**
+[See additional function details](functions/ppl-datetime#earliest)
+- `source = table | where earliest("-1wk", timestamp)`
+- `source = table | where earliest("@qtr", timestamp)`
+- `source = table | where earliest("-2y@q", timestamp)`
+
+#### **latest**
+[See additional function details](functions/ppl-datetime#latest)
+- `source = table | where latest("-60m", timestamp)`
+- `source = table | where latest("@year", timestamp)`
+- `source = table | where latest("-day@w1", timestamp)`
 ---

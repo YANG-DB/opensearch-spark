@@ -42,6 +42,7 @@ FILLNULL:                           'FILLNULL';
 EXPAND:                             'EXPAND';
 FLATTEN:                            'FLATTEN';
 TRENDLINE:                          'TRENDLINE';
+APPENDCOL:                          'APPENDCOL';
 
 //Native JOIN KEYWORDS
 JOIN:                               'JOIN';
@@ -82,12 +83,12 @@ DATASOURCES:                        'DATASOURCES';
 USING:                              'USING';
 WITH:                               'WITH';
 
-// FIELD KEYWORDS
+// SORT FIELD KEYWORDS
+// TODO #963: Implement 'num', 'str', and 'ip' sort syntax
 AUTO:                               'AUTO';
 STR:                                'STR';
 IP:                                 'IP';
 NUM:                                'NUM';
-
 
 // FIELDSUMMARY keywords
 FIELDSUMMARY:                       'FIELDSUMMARY';
@@ -97,6 +98,9 @@ NULLS:                              'NULLS';
 //TRENDLINE KEYWORDS
 SMA:                                'SMA';
 WMA:                                'WMA';
+
+// APPENDCOL options
+OVERRIDE:                           'OVERRIDE';
 
 // ARGUMENT KEYWORDS
 KEEPEMPTY:                          'KEEPEMPTY';
@@ -243,10 +247,6 @@ FIRST:                              'FIRST';
 LAST:                               'LAST';
 LIST:                               'LIST';
 VALUES:                             'VALUES';
-EARLIEST:                           'EARLIEST';
-EARLIEST_TIME:                      'EARLIEST_TIME';
-LATEST:                             'LATEST';
-LATEST_TIME:                        'LATEST_TIME';
 PER_DAY:                            'PER_DAY';
 PER_HOUR:                           'PER_HOUR';
 PER_MINUTE:                         'PER_MINUTE';
@@ -354,6 +354,11 @@ UTC_TIME:                           'UTC_TIME';
 UTC_TIMESTAMP:                      'UTC_TIMESTAMP';
 WEEKDAY:                            'WEEKDAY';
 YEARWEEK:                           'YEARWEEK';
+
+// RELATIVE TIME FUNCTIONS
+RELATIVE_TIMESTAMP:                 'RELATIVE_TIMESTAMP';
+EARLIEST:                           'EARLIEST';
+LATEST:                             'LATEST';
 
 // TEXT FUNCTIONS
 SUBSTR:                             'SUBSTR';

@@ -56,6 +56,7 @@ commands
    | flattenCommand
    | expandCommand
    | trendlineCommand
+   | appendcolCommand
    ;
 
 commandName
@@ -90,6 +91,7 @@ commandName
    | FIELDSUMMARY
    | FLATTEN
    | TRENDLINE
+   | APPENDCOL
    ;
 
 searchCommand
@@ -268,6 +270,10 @@ trendlineClause
 trendlineType
    : SMA
    | WMA
+   ;
+
+appendcolCommand
+   : APPENDCOL (OVERRIDE EQUAL override = booleanLiteral)? LT_SQR_PRTHS commands (PIPE commands)* RT_SQR_PRTHS
    ;
 
 kmeansCommand
@@ -524,6 +530,8 @@ sortField
 
 sortFieldExpression
    : fieldExpression
+
+   // TODO #963: Implement 'num', 'str', and 'ip' sort syntax
    | AUTO LT_PRTHS fieldExpression RT_PRTHS
    | STR LT_PRTHS fieldExpression RT_PRTHS
    | IP LT_PRTHS fieldExpression RT_PRTHS
@@ -771,6 +779,13 @@ dateTimeFunctionName
    | WEEK_OF_YEAR
    | YEAR
    | YEARWEEK
+   | relativeTimeFunctionName
+   ;
+
+relativeTimeFunctionName
+   : RELATIVE_TIMESTAMP
+   | EARLIEST
+   | LATEST
    ;
 
 getFormatFunction
@@ -838,6 +853,8 @@ conditionFunctionBase
    | NULLIF
    | ISPRESENT
    | JSON_VALID
+   | EARLIEST
+   | LATEST
    ;
 
 systemFunctionName
@@ -1104,10 +1121,6 @@ keywordsCanBeId
    | INDEX
    | DESC
    | DATASOURCES
-   | AUTO
-   | STR
-   | IP
-   | NUM
    | FROM
    | PATTERN
    | NEW_FIELD
@@ -1166,10 +1179,6 @@ keywordsCanBeId
    | LAST
    | LIST
    | VALUES
-   | EARLIEST
-   | EARLIEST_TIME
-   | LATEST
-   | LATEST_TIME
    | PER_DAY
    | PER_HOUR
    | PER_MINUTE
@@ -1190,4 +1199,9 @@ keywordsCanBeId
    | BETWEEN
    | CIDRMATCH
    | trendlineType
+   // SORT FIELD KEYWORDS
+   | AUTO
+   | STR
+   | IP
+   | NUM
    ;

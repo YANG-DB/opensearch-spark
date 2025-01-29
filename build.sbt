@@ -55,9 +55,7 @@ lazy val testScalastyle = taskKey[Unit]("testScalastyle")
 // - .inAll applies the rule to all dependencies, not just direct dependencies
 val packagesToShade = Seq(
   "com.amazonaws.cloudwatch.**",
-  "com.fasterxml.jackson.core.**",
-  "com.fasterxml.jackson.dataformat.**",
-  "com.fasterxml.jackson.databind.**",
+  "com.google.**",
   "com.sun.jna.**",
   "com.thoughtworks.paranamer.**",
   "javax.annotation.**",
@@ -68,8 +66,7 @@ val packagesToShade = Seq(
   "org.glassfish.json.**",
   "org.joda.time.**",
   "org.reactivestreams.**",
-  "org.yaml.**",
-  "software.amazon.**"
+  "org.yaml.**"
 )
 
 ThisBuild / assemblyShadeRules := Seq(
@@ -121,6 +118,7 @@ lazy val flintCore = (project in file("flint-core"))
         exclude ("org.apache.httpcomponents.client5", "httpclient5"),
       "org.opensearch" % "opensearch-job-scheduler-spi" % opensearchMavenVersion,
       "dev.failsafe" % "failsafe" % "3.3.2",
+      "com.google.guava" % "guava" % "33.3.1-jre",
       "com.amazonaws" % "aws-java-sdk" % "1.12.397" % "provided"
         exclude ("com.fasterxml.jackson.core", "jackson-databind"),
       "com.amazonaws" % "aws-java-sdk-cloudwatch" % "1.12.593"
@@ -323,6 +321,28 @@ lazy val integtest = (project in file("integ-test"))
   )
 lazy val integration = taskKey[Unit]("Run integration tests")
 lazy val awsIntegration = taskKey[Unit]("Run AWS integration tests")
+
+lazy val e2etest = (project in file("e2e-test"))
+  .dependsOn(flintCommons % "test->package", flintSparkIntegration % "test->package", pplSparkIntegration % "test->package", sparkSqlApplication % "test->package")
+  .settings(
+    commonSettings,
+    name := "e2e-test",
+    scalaVersion := scala212,
+    libraryDependencies ++= Seq(
+      "org.scalatest" %% "scalatest" % "3.2.15" % "test",
+      "org.apache.spark" %% "spark-connect-client-jvm" % "3.5.3" % "test",
+      "com.amazonaws" % "aws-java-sdk-s3" % "1.12.568" % "test",
+      "com.softwaremill.sttp.client3" %% "core" % "3.10.2" % "test",
+      "com.softwaremill.sttp.client3" %% "play2-json" % "3.10.2",
+      "com.typesafe.play" %% "play-json" % "2.9.2" % "test",
+    ),
+    libraryDependencies ++= deps(sparkVersion),
+    javaOptions ++= Seq(
+      s"-DappJar=${(sparkSqlApplication / assembly).value.getAbsolutePath}",
+      s"-DextensionJar=${(flintSparkIntegration / assembly).value.getAbsolutePath}",
+      s"-DpplJar=${(pplSparkIntegration / assembly).value.getAbsolutePath}",
+    )
+  )
 
 lazy val standaloneCosmetic = project
   .settings(
